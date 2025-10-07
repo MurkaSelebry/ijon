@@ -1,44 +1,31 @@
-# Используем официальный Node.js образ
-FROM node:18-alpine as builder
+# ---- Build stage ----
+FROM node:20-alpine AS builder
 
-# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем файлы package.json и pnpm-lock.yaml
+# Enable corepack to use pnpm
+RUN corepack enable
+
+# Install dependencies with lockfile for reproducible builds
 COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --no-frozen-lockfile
 
-# Устанавливаем pnpm
-RUN npm install -g pnpm
-
-# Устанавливаем зависимости
-RUN pnpm install --frozen-lockfile
-
-# Копируем исходный код
+# Copy the rest of the source and build
 COPY . .
-
-# Собираем приложение
 RUN pnpm build
 
-# Используем nginx для раздачи статических файлов
-FROM nginx:alpine
+# ---- Runtime stage ----
+FROM nginx:1.27-alpine
 
-# Копируем собранные файлы из builder стадии
+# Replace default nginx site config with our SPA config
+RUN rm -f /etc/nginx/conf.d/default.conf
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Copy built static files
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Копируем конфигурацию nginx для порта 8080
-RUN echo 'server { \
-    listen 8080; \
-    server_name localhost; \
-    root /usr/share/nginx/html; \
-    index index.html; \
-    location / { \
-        try_files $uri $uri/ /index.html; \
-    } \
-}' > /etc/nginx/conf.d/default.conf
+EXPOSE 80
 
-# Открываем порт 8080
-EXPOSE 8080
-
-# Запускаем nginx
 CMD ["nginx", "-g", "daemon off;"]
+
 
