@@ -6,6 +6,7 @@ import { FaTelegramPlane, FaVk, FaTicketAlt } from 'react-icons/fa'
 import { FaYandex } from 'react-icons/fa'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import CookieNotice from './components/CookieNotice'
+import heroImage from '../images/jony_ico.png'
 
 function App() {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false)
@@ -75,7 +76,7 @@ function App() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <img
-          src="https://static.lumi.new/86/8601e723afd6573b7b14a67fdf9dc1a8.webp"
+          src={heroImage}
           alt="Jony"
           className="w-full h-full object-cover opacity-70"
         />
@@ -136,7 +137,7 @@ function App() {
           variants={itemVariants}
           className="text-2xl md:text-3xl text-gray-300 font-light mb-4 max-w-2xl leading-relaxed font-display"
         >
-          Официальный артист
+          Артист
         </motion.p>
         <motion.p
           variants={itemVariants}
